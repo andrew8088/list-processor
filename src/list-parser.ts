@@ -1,18 +1,15 @@
 type List = Array<string | List>;
 
-const last = <T>(arr: T[]): T => arr[arr.length - 1];
-
-export default function parse(list: string): any[] {
+export default function parse(list: string): string | List {
   const chars = list.trim().split('');
-  const [_, ret] = parseList(chars, []);
-
+  const [_, [ret]] = parseList(chars, []);
   return ret;
 }
 
 function parseList(chars: string[], list: List): [string[], List] {
+  let nextNew = true;
   while(chars.length > 0) {
-    let char = chars.pop();
-
+    let char = chars.shift();
     if (!char) throw new Error("char not a char");
 
     if (char === '(') {
@@ -22,13 +19,12 @@ function parseList(chars: string[], list: List): [string[], List] {
     } else if (char === ')') {
       return [chars, list];
     } else if (char === ' ') {
-      list.push('');
+      nextNew = true;
+    } else if (nextNew) {
+      list.push(char);
+      nextNew = false;
     } else {
-      if (list.length > 0) {
-        list[list.length - 1] = list[list.length  - 1] + char;
-      } else {
-        list.push(char);
-      }
+      list[list.length - 1] = list[list.length  - 1] + char;
     }
   }
   return  [chars, list];
